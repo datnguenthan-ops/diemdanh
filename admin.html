@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<!-- saved from url=(0049)file:///E:/prac26/hoitruong/qr_checkin/admin.html -->
+<html lang="vi"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Trị Điểm Danh - BTC</title>
+    <script src="./Quản Trị Điểm Danh - BTC_files/xlsx.full.min.js.download"></script>
+    <link href="./Quản Trị Điểm Danh - BTC_files/css2" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --bg: #F3F4F6;
+            --surface: #FFFFFF;
+            --border: #E5E7EB;
+            --text-main: #111827;
+            --text-muted: #6B7280;
+            --st-none: #f9fafb;
+            --st-unmarked: #e5e7eb;
+            --st-present: #10B981;
+            --vip-border: #FBBF24;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: var(--surface);
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .toolbar {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-main);
+        }
+
+        .btn-outline:hover {
+            background: #f9fafb;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 24px;
+            display: flex;
+            gap: 24px;
+            max-width: 1600px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .sidebar {
+            width: 300px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .widget {
+            background: var(--surface);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .widget h3 {
+            font-size: 14px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+
+        .hall-view {
+            flex: 1;
+            background: var(--surface);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            padding: 32px;
+            overflow: auto;
+            position: relative;
+        }
+
+        .stage {
+            background: #E0E7FF;
+            border: 1px solid #A5B4FC;
+            text-align: center;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 700;
+            color: #4338ca;
+            margin-bottom: 40px;
+        }
+
+        .blocks-wrapper {
+            display: flex;
+            justify-content: center;
+            gap: 48px;
+        }
+
+        .block {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .block-title {
+            text-align: center;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+
+        .row-label {
+            width: 24px;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-align: right;
+        }
+
+        .seats-container {
+            display: flex;
+            gap: 6px;
+        }
+
+        .seat {
+            width: 85px;
+            height: 62px;
+            background: var(--st-none);
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 4px;
+            font-size: 10px;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .seat.vip {
+            border-color: var(--vip-border);
+        }
+
+        .seat.st-unmarked {
+            background: var(--st-unmarked);
+            border-color: #d1d5db;
+        }
+
+        .seat.st-present {
+            background: #D1FAE5;
+            border-color: var(--st-present);
+            box-shadow: 0 0 8px rgba(16, 185, 129, 0.2);
+        }
+
+        .seat-name {
+            font-weight: 700;
+            font-size: 11px;
+            text-align: center;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            line-height: 1.1;
+            margin: 2px 0;
+        }
+
+        .seat-time {
+            font-size: 9px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .vip-star {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--vip-border);
+            color: #fff;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            font-size: 9px;
+            line-height: 16px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .stat-line {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .stat-value {
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .sync-status {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-left: 10px;
+        }
+
+        #live-badge {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #10B981;
+            border-radius: 50%;
+            margin-right: 4px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.3;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        #toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #333;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            display: none;
+            z-index: 100;
+            animation: slideUp 0.3s;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+            }
+
+            to {
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="header">
+        <div style="display: flex; align-items: center;">
+            <h1>Quản Trị Hội Trường (Live)</h1>
+            <span class="sync-status"><span id="live-badge"></span> Đang kết nối Google Sheets...</span>
+        </div>
+        <div class="toolbar">
+            <button class="btn btn-outline" onclick="loadData()">🔄 Tải Lại Dữ Liệu</button>
+            <button class="btn btn-outline" onclick="document.getElementById(&#39;file-in&#39;).click()">📥 Nhập Excel</button>
+            <input type="file" id="file-in" style="display:none" onchange="handleExcel(event)">
+        </div>
+    </header>
+
+    <main class="main-content">
+        <aside class="sidebar">
+            <div class="widget">
+                <h3>Thống Kê Hiện Tại</h3>
+                <div class="stat-line"><span>Tổng chỗ:</span> <span class="stat-value" id="st-total">60</span></div>
+                <div class="stat-line"><span>Đã gán tên:</span> <span class="stat-value" id="st-named">0</span></div>
+                <div class="stat-line"><span>Có mặt:</span> <span class="stat-value" id="st-present" style="color: var(--st-present)">0</span></div>
+                <div class="stat-line"><span>Còn vắng:</span> <span class="stat-value" id="st-absent" style="color: #EF4444">0</span></div>
+            </div>
+
+            <div class="widget">
+                <h3>Cấu Hình QR</h3>
+                <p style="font-size: 12px; color: var(--text-muted); line-height: 1.5;">Dán link Web App từ Google Apps
+                    Script bên dưới để kích hoạt đồng bộ:</p>
+                <input type="text" id="script-url" placeholder="https://script.google.com/..." style="width: 100%; margin: 10px 0; padding: 8px; font-size: 11px;" onchange="saveConfig()">
+                <p style="font-size: 11px; margin-top: 10px;">URL Check-in Khách: <br><strong id="guest-url">file:///E:/prac26/hoitruong/qr_checkin/index.html</strong></p>
+            </div>
+        </aside>
+
+        <section class="hall-view">
+            <div class="stage">SÂN KHẤU / BÀN CHỦ TỌA</div>
+            <div class="blocks-wrapper" id="hall-layout"><div class="block"><div class="block-title">Dãy Trái</div><div class="row"><div class="row-label">H1</div><div class="seats-container"><div class="seat vip" id="seat-Trái-1-1"><div class="vip-star">★</div><div style="color:#6b7280; font-size:9px">C1</div><div class="seat-name" id="name-Trái-1-1"></div><div class="seat-time" id="time-Trái-1-1"></div></div><div class="seat vip" id="seat-Trái-2-1"><div class="vip-star">★</div><div style="color:#6b7280; font-size:9px">C2</div><div class="seat-name" id="name-Trái-2-1"></div><div class="seat-time" id="time-Trái-2-1"></div></div><div class="seat vip" id="seat-Trái-3-1"><div class="vip-star">★</div><div style="color:#6b7280; font-size:9px">C3</div><div class="seat-name" id="name-Trái-3-1"></div><div class="seat-time" id="time-Trái-3-1"></div></div></div></div><div class="row"><div class="row-label">H2</div><div class="seats-container"><div class="seat vip" id="seat-Trái-1-2"><div class="vip-star">★</div><div style="color:#6b7280; font-size:9px">C1</div><div class="seat-name" id="name-Trái-1-2"></div><div class="seat-time" id="time-Trái-1-2"></div></div><div class="seat vip" id="seat-Trái-2-2"><div class="vip-star">★</div><div style="color:#6b7280; font-size:9px">C2</div><div class="seat-name" id="name-Trái-2-2"></div><div class="seat-time" id="time-Trái-2-2"></div></div><div class="seat vip" id="seat-Trái-3-2"><div class="vip-star">★</div><div style="color:#6b7280; font-size:9px">C3</div><div class="seat-name" id="name-Trái-3-2"></div><div class="seat-time" id="time-Trái-3-2"></div></div></div></div><div class="row"><div class="row-label">H3</div><div class="seats-container"><div class="seat" id="seat-Trái-1-3"><div style="color:#6b7280; font-size:9px">C1</div><div class="seat-name" id="name-Trái-1-3"></div><div class="seat-time" id="time-Trái-1-3"></div></div><div class="seat" id="seat-Trái-2-3"><div style="color:#6b7280; font-size:9px">C2</div><div class="seat-name" id="name-Trái-2-3"></div><div class="seat-time" id="time-Trái-2-3"></div></div><div class="seat" id="seat-Trái-3-3"><div style="color:#6b7280; font-size:9px">C3</div><div class="seat-name" id="name-Trái-3-3"></div><div class="seat-time" id="time-Trái-3-3"></div></div></div></div><div class="row"><div class="row-label">H4</div><div class="seats-container"><div class="seat" id="seat-Trái-1-4"><div style="color:#6b7280; font-size:9px">C1</div><div class="seat-name" id="name-Trái-1-4"></div><div class="seat-time" id="time-Trái-1-4"></div></div><div class="seat" id="seat-Trái-2-4"><div style="color:#6b7280; font-size:9px">C2</div><div class="seat-name" id="name-Trái-2-4"></div><div class="seat-time" id="time-Trái-2-4"></div></div><div class="seat" id="seat-Trái-3-4"><div style="color:#6b7280; font-size:9px">C3</div><div class="seat-name" id="name-Trái-3-4"></div><div class="seat-time" id="time-Trái-3-4"></div></div></div></div><div class="row"><div class="row-label">H5</div><div class="seats-container"><div class="seat" id="seat-Trái-1-5"><div style="color:#6b7280; font-size:9px">C1</div><div class="seat-name" id="name-Trái-1-5"></div><div class="seat-time" id="time-Trái-1-5"></div></div><div class="seat" id="seat-Trái-2-5"><div style="color:#6b7280; font-size:9px">C2</div><div class="seat-name" id="name-Trái-2-5"></div><div class="seat-time" id="time-Trái-2-5"></div></div><div class="seat" id="seat-Trái-3-5"><div style="color:#6b7280; font-size:9px">C3</div><div class="seat-name" id="name-Trái-3-5"></div><div class="seat-time" id="time-Trái-3-5"></div></div></div></div><div class="row"><div class="row-label">H6</div><div class="seats-container"><div class="seat" id="seat-Trái-1-6"><div style="color:#6b7280; font-size:9px">C1</div><div class="seat-name" id="name-Trái-1-6"></div><div class="seat-time" id="time-Trái-1-6"></div></div><div class="seat" id="seat-Trái-2-6"><div style="color:#6b7280; font-size:9px">C2</div><div class="seat-name" id="name-Trái-2-6"></div><div class="seat-time" id="time-Trái-2-6"></div></div><div class="seat" id="seat-Trái-3-6"><div style="color:#6b7280; font-size:9px">C3</div><div class="seat-name" id="name-Trái-3-6"></div><div class="seat-time" id="time-Trái-3-6"></div></div></div></div><div class="row"><div class="row-label">H7</div><div class="seats-container"><div class="seat" id="seat-Trái-1-7"><div style="color:#6b7280; font-size:9px">C1</div><div class="seat-name" id="name-Trái-1-7"></div><div class="seat-time" id="time-Trái-1-7"></div></div><div class="seat" id="seat-Trái-2-7"><div style="color:#6b7280; font-size:9px">C2</div><div class="seat-name" id="name-Trái-2-7"></div><div class="seat-time" id="time-Trái-2-7"></div></div><div class="seat" id="seat-Trái-3-7"><div style="color:#6b7280; font-size:9px">C3</div><div class="seat-name" id="name-Trái-3-7"></div><div class="seat-time" id="time-Trái-3-7"></div></div></div></div><div class="row"><div class="row-label">H8</div><div class="seats-container"><div class="seat" id="seat-Trái-1-8"><div style="color:#6b7280; font-size:9px">C1</div><div class="seat-name" id="name-Trái-1-8"></div><div class="seat-time" id="time-Trái-1-8"></div></div><div class="seat" id="seat-Trái-2-8"><div style="color:#6b7280; font-size:9px">C2</div><div class="seat-name" id="name-Trái-2-8"></div><div class="seat-time" id="time-Trái-2-8"></div></div><div class="seat" id="seat-Trái-3-8"><div style="color:#6b7280; font-size:9px">C3</div><div class="seat-name" id="name-Trái-3-8"></div><div class="seat-time" id="time-Trái-3-8"></div></div></div></div><div class="row"><div class="row-label">H9</div><div class="seats-container"><div class="seat" id="seat-Trái-1-9"><div style="color:#6b7280; font-size:9px">C1</div><div class="seat-name" id="name-Trái-1-9"></div><div class="seat-time" id="time-Trái-1-9"></div></div><div class="seat" id="seat-Trái-2-9"><div style="color:#6b7280; font-size:9px">C2</div><div class="seat-name" id="name-Trái-2-9"></div><div class="seat-time" id="time-Trái-2-9"></div></div><div class="seat" id="seat-Trái-3-9"><div style="color:#6b7280; font-size:9px">C3</div><div class="seat-name" id="name-Trái-3-9"></div><div class="seat-time" id="time-Trái-3-9"></div></div></div></div><div class="row"><div class="row-label">H10</div><div class="seats-container"><div class="seat" id="seat-Trái-1-10"><div style="color:#6b7280; font-size:9px">C1</div><div class="seat-name" id="name-Trái-1-10"></div><div class="seat-time" id="time-Trái-1-10"></div></div><div class="seat" id="seat-Trái-2-10"><div style="color:#6b7280; font-size:9px">C2</div><div class="seat-name" id="name-Trái-2-10"></div><div class="seat-time" id="time-Trái-2-10"></div></div><div class="seat" id="seat-Trái-3-10"><div style="color:#6b7280; font-size:9px">C3</div><div class="seat-name" id="name-Trái-3-10"></div><div class="seat-time" id="time-Trái-3-10"></div></div></div></div></div><div class="block"><div class="block-title">Dãy Phải</div><div class="row"><div class="row-label">H1</div><div class="seats-container"><div class="seat vip" id="seat-Phải-1-1"><div class="vip-star">★</div><div style="color:#6b7280; font-size:9px">C1</div><div class="seat-name" id="name-Phải-1-1"></div><div class="seat-time" id="time-Phải-1-1"></div></div><div class="seat vip" id="seat-Phải-2-1"><div class="vip-star">★</div><div style="color:#6b7280; font-size:9px">C2</div><div class="seat-name" id="name-Phải-2-1"></div><div class="seat-time" id="time-Phải-2-1"></div></div><div class="seat vip" id="seat-Phải-3-1"><div class="vip-star">★</div><div style="color:#6b7280; font-size:9px">C3</div><div class="seat-name" id="name-Phải-3-1"></div><div class="seat-time" id="time-Phải-3-1"></div></div></div></div><div class="row"><div class="row-label">H2</div><div class="seats-container"><div class="seat vip" id="seat-Phải-1-2"><div class="vip-star">★</div><div style="color:#6b7280; font-size:9px">C1</div><div class="seat-name" id="name-Phải-1-2"></div><div class="seat-time" id="time-Phải-1-2"></div></div><div class="seat vip" id="seat-Phải-2-2"><div class="vip-star">★</div><div style="color:#6b7280; font-size:9px">C2</div><div class="seat-name" id="name-Phải-2-2"></div><div class="seat-time" id="time-Phải-2-2"></div></div><div class="seat vip" id="seat-Phải-3-2"><div class="vip-star">★</div><div style="color:#6b7280; font-size:9px">C3</div><div class="seat-name" id="name-Phải-3-2"></div><div class="seat-time" id="time-Phải-3-2"></div></div></div></div><div class="row"><div class="row-label">H3</div><div class="seats-container"><div class="seat" id="seat-Phải-1-3"><div style="color:#6b7280; font-size:9px">C1</div><div class="seat-name" id="name-Phải-1-3"></div><div class="seat-time" id="time-Phải-1-3"></div></div><div class="seat" id="seat-Phải-2-3"><div style="color:#6b7280; font-size:9px">C2</div><div class="seat-name" id="name-Phải-2-3"></div><div class="seat-time" id="time-Phải-2-3"></div></div><div class="seat" id="seat-Phải-3-3"><div style="color:#6b7280; font-size:9px">C3</div><div class="seat-name" id="name-Phải-3-3"></div><div class="seat-time" id="time-Phải-3-3"></div></div></div></div><div class="row"><div class="row-label">H4</div><div class="seats-container"><div class="seat" id="seat-Phải-1-4"><div style="color:#6b7280; font-size:9px">C1</div><div class="seat-name" id="name-Phải-1-4"></div><div class="seat-time" id="time-Phải-1-4"></div></div><div class="seat" id="seat-Phải-2-4"><div style="color:#6b7280; font-size:9px">C2</div><div class="seat-name" id="name-Phải-2-4"></div><div class="seat-time" id="time-Phải-2-4"></div></div><div class="seat" id="seat-Phải-3-4"><div style="color:#6b7280; font-size:9px">C3</div><div class="seat-name" id="name-Phải-3-4"></div><div class="seat-time" id="time-Phải-3-4"></div></div></div></div><div class="row"><div class="row-label">H5</div><div class="seats-container"><div class="seat" id="seat-Phải-1-5"><div style="color:#6b7280; font-size:9px">C1</div><div class="seat-name" id="name-Phải-1-5"></div><div class="seat-time" id="time-Phải-1-5"></div></div><div class="seat" id="seat-Phải-2-5"><div style="color:#6b7280; font-size:9px">C2</div><div class="seat-name" id="name-Phải-2-5"></div><div class="seat-time" id="time-Phải-2-5"></div></div><div class="seat" id="seat-Phải-3-5"><div style="color:#6b7280; font-size:9px">C3</div><div class="seat-name" id="name-Phải-3-5"></div><div class="seat-time" id="time-Phải-3-5"></div></div></div></div><div class="row"><div class="row-label">H6</div><div class="seats-container"><div class="seat" id="seat-Phải-1-6"><div style="color:#6b7280; font-size:9px">C1</div><div class="seat-name" id="name-Phải-1-6"></div><div class="seat-time" id="time-Phải-1-6"></div></div><div class="seat" id="seat-Phải-2-6"><div style="color:#6b7280; font-size:9px">C2</div><div class="seat-name" id="name-Phải-2-6"></div><div class="seat-time" id="time-Phải-2-6"></div></div><div class="seat" id="seat-Phải-3-6"><div style="color:#6b7280; font-size:9px">C3</div><div class="seat-name" id="name-Phải-3-6"></div><div class="seat-time" id="time-Phải-3-6"></div></div></div></div><div class="row"><div class="row-label">H7</div><div class="seats-container"><div class="seat" id="seat-Phải-1-7"><div style="color:#6b7280; font-size:9px">C1</div><div class="seat-name" id="name-Phải-1-7"></div><div class="seat-time" id="time-Phải-1-7"></div></div><div class="seat" id="seat-Phải-2-7"><div style="color:#6b7280; font-size:9px">C2</div><div class="seat-name" id="name-Phải-2-7"></div><div class="seat-time" id="time-Phải-2-7"></div></div><div class="seat" id="seat-Phải-3-7"><div style="color:#6b7280; font-size:9px">C3</div><div class="seat-name" id="name-Phải-3-7"></div><div class="seat-time" id="time-Phải-3-7"></div></div></div></div><div class="row"><div class="row-label">H8</div><div class="seats-container"><div class="seat" id="seat-Phải-1-8"><div style="color:#6b7280; font-size:9px">C1</div><div class="seat-name" id="name-Phải-1-8"></div><div class="seat-time" id="time-Phải-1-8"></div></div><div class="seat" id="seat-Phải-2-8"><div style="color:#6b7280; font-size:9px">C2</div><div class="seat-name" id="name-Phải-2-8"></div><div class="seat-time" id="time-Phải-2-8"></div></div><div class="seat" id="seat-Phải-3-8"><div style="color:#6b7280; font-size:9px">C3</div><div class="seat-name" id="name-Phải-3-8"></div><div class="seat-time" id="time-Phải-3-8"></div></div></div></div><div class="row"><div class="row-label">H9</div><div class="seats-container"><div class="seat" id="seat-Phải-1-9"><div style="color:#6b7280; font-size:9px">C1</div><div class="seat-name" id="name-Phải-1-9"></div><div class="seat-time" id="time-Phải-1-9"></div></div><div class="seat" id="seat-Phải-2-9"><div style="color:#6b7280; font-size:9px">C2</div><div class="seat-name" id="name-Phải-2-9"></div><div class="seat-time" id="time-Phải-2-9"></div></div><div class="seat" id="seat-Phải-3-9"><div style="color:#6b7280; font-size:9px">C3</div><div class="seat-name" id="name-Phải-3-9"></div><div class="seat-time" id="time-Phải-3-9"></div></div></div></div><div class="row"><div class="row-label">H10</div><div class="seats-container"><div class="seat" id="seat-Phải-1-10"><div style="color:#6b7280; font-size:9px">C1</div><div class="seat-name" id="name-Phải-1-10"></div><div class="seat-time" id="time-Phải-1-10"></div></div><div class="seat" id="seat-Phải-2-10"><div style="color:#6b7280; font-size:9px">C2</div><div class="seat-name" id="name-Phải-2-10"></div><div class="seat-time" id="time-Phải-2-10"></div></div><div class="seat" id="seat-Phải-3-10"><div style="color:#6b7280; font-size:9px">C3</div><div class="seat-name" id="name-Phải-3-10"></div><div class="seat-time" id="time-Phải-3-10"></div></div></div></div></div></div>
+        </section>
+    </main>
+
+    <div id="toast" style="display: none;">Đã lưu cấu hình!</div>
+
+    <script>
+        let SCRIPT_URL = localStorage.getItem('qr_script_url') || '';
+        let seatsData = {}; // key: uid
+        let pollTimer = null;
+
+        const BLOCKS = [{ id: 'left', name: 'Trái' }, { id: 'right', name: 'Phải' }];
+        const ROWS = 10;
+        const COLS = 3;
+
+        function saveConfig() {
+            SCRIPT_URL = document.getElementById('script-url').value.trim();
+            localStorage.setItem('qr_script_url', SCRIPT_URL);
+            updateGuestUrl();
+            showToast('Đã lưu cấu hình!');
+            loadData(); // Thử tải dữ liệu mới
+        }
+
+        function updateGuestUrl() {
+            const loc = window.location.href;
+            const guestUrl = loc.substring(0, loc.lastIndexOf("/")) + "/index.html";
+            document.getElementById('guest-url').innerText = guestUrl;
+        }
+
+        function initHall() {
+            const container = document.getElementById('hall-layout');
+            container.innerHTML = '';
+
+            // Khởi tạo seatsData rỗng nếu chưa có
+            BLOCKS.forEach(b => {
+                const bDiv = document.createElement('div');
+                bDiv.className = 'block';
+                bDiv.innerHTML = `<div class="block-title">Dãy ${b.name}</div>`;
+
+                for (let r = 1; r <= ROWS; r++) {
+                    const rowDiv = document.createElement('div');
+                    rowDiv.className = 'row';
+                    rowDiv.innerHTML = `<div class="row-label">H${r}</div>`;
+
+                    const seatsGroup = document.createElement('div');
+                    seatsGroup.className = 'seats-container';
+
+                    for (let c = 1; c <= COLS; c++) {
+                        const uid = `${b.name}-${c}-${r}`;
+                        const isVip = (r <= 2);
+
+                        if (!seatsData[uid]) {
+                            seatsData[uid] = { uid, name: '', unit: '', block: b.name, col: c, row: r, isVip, status: 'none', time: '' };
+                        }
+
+                        const sEl = document.createElement('div');
+                        sEl.className = `seat ${isVip ? 'vip' : ''}`;
+                        sEl.id = `seat-${uid}`;
+                        if (isVip) sEl.innerHTML = '<div class="vip-star">★</div>';
+                        sEl.innerHTML += `<div style="color:#6b7280; font-size:9px">C${c}</div>`;
+                        sEl.innerHTML += `<div class="seat-name" id="name-${uid}"></div>`;
+                        sEl.innerHTML += `<div class="seat-time" id="time-${uid}"></div>`;
+
+                        seatsGroup.appendChild(sEl);
+                    }
+                    rowDiv.appendChild(seatsGroup);
+                    bDiv.appendChild(rowDiv);
+                }
+                container.appendChild(bDiv);
+            });
+        }
+
+        async function loadData() {
+            if (!SCRIPT_URL) return;
+            try {
+                const resp = await fetch(SCRIPT_URL);
+                const res = await resp.json();
+                if (res.status === 'success') {
+                    const data = res.data;
+                    data.forEach(item => {
+                        const uid = item['UID'];
+                        if (seatsData[uid]) {
+                            seatsData[uid].name = item['Họ và tên'];
+                            seatsData[uid].unit = item['Đơn vị'];
+                            seatsData[uid].status = item['Trạng thái'];
+                            seatsData[uid].time = item['Giờ có mặt'];
+                        }
+                    });
+                    renderSeats();
+                }
+            } catch (e) {
+                console.error('Sync failed', e);
+            }
+        }
+
+        function renderSeats() {
+            let named = 0, present = 0;
+            Object.values(seatsData).forEach(s => {
+                const el = document.getElementById(`seat-${s.uid}`);
+                const nameEl = document.getElementById(`name-${s.uid}`);
+                const timeEl = document.getElementById(`time-${s.uid}`);
+
+                if (s.name) {
+                    named++;
+                    el.classList.add('st-unmarked');
+                    nameEl.innerText = s.name;
+                    nameEl.title = s.name + (s.unit ? ' (' + s.unit + ')' : '');
+                } else {
+                    el.classList.remove('st-unmarked');
+                    nameEl.innerText = '';
+                }
+
+                if (s.status === 'present') {
+                    present++;
+                    el.classList.add('st-present');
+                    timeEl.innerText = s.time || '';
+                } else {
+                    el.classList.remove('st-present');
+                    timeEl.innerText = '';
+                }
+            });
+
+            document.getElementById('st-named').innerText = named;
+            document.getElementById('st-present').innerText = present;
+            document.getElementById('st-absent').innerText = named - present;
+        }
+
+        // Import Excel
+        function handleExcel(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = async function (e) {
+                const data = new Uint8Array(e.target.result);
+                const wb = XLSX.read(data, { type: 'array' });
+                const ws = wb.Sheets[wb.SheetNames[0]];
+                const rows = XLSX.utils.sheet_to_json(ws);
+
+                // Clear state
+                Object.values(seatsData).forEach(s => { s.name = ''; s.unit = ''; s.status = 'none'; s.time = ''; });
+
+                rows.forEach(r => {
+                    const keys = Object.keys(r);
+                    const nK = keys.find(k => k.toLowerCase().includes('tên'));
+                    const uK = keys.find(k => k.toLowerCase().includes('đơn vị') || k.toLowerCase().includes('phòng'));
+                    const bK = keys.find(k => k.toLowerCase().includes('dãy'));
+                    const cK = keys.find(k => k.toLowerCase().includes('cột'));
+                    const rK = keys.find(k => k.toLowerCase().includes('hàng'));
+
+                    if (nK && bK && cK && rK) {
+                        const bName = String(r[bK]).includes('Phải') ? 'Phải' : 'Trái';
+                        const uid = `${bName}-${parseInt(r[cK])}-${parseInt(r[rK])}`;
+                        if (seatsData[uid]) {
+                            seatsData[uid].name = r[nK];
+                            seatsData[uid].unit = r[uK] || '';
+                            seatsData[uid].status = 'unmarked';
+                        }
+                    }
+                });
+
+                showToast('Đang tải danh sách lên Google Sheets...');
+                await syncToGoogleSheets();
+                renderSeats();
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        async function syncToGoogleSheets() {
+            if (!SCRIPT_URL) {
+                alert('Vui lòng dán Script URL trước!');
+                return;
+            }
+            try {
+                await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: JSON.stringify({ action: 'import', seats: Object.values(seatsData) })
+                });
+                showToast('Đồng bộ thành công!');
+            } catch (e) {
+                showToast('Lỗi đồng bộ!', 'error');
+            }
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.innerText = msg;
+            t.style.display = 'block';
+            setTimeout(() => { t.style.display = 'none'; }, 3000);
+        }
+
+        window.onload = () => {
+            document.getElementById('script-url').value = SCRIPT_URL;
+            updateGuestUrl();
+            initHall();
+            renderSeats();
+            loadData();
+            // Tự động reload mỗi 5 giây
+            pollTimer = setInterval(loadData, 5000);
+        };
+    </script>
+
+
+</body></html>

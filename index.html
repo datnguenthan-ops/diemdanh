@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Điểm Danh Sự Kiện - QR Check-in</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --primary-hover: #4338ca;
+            --bg: #F3F4F6;
+            --surface: #FFFFFF;
+            --border: #E5E7EB;
+            --text-main: #111827;
+            --text-muted: #6B7280;
+            --st-unmarked: #e5e7eb;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: var(--surface);
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border);
+            text-align: center;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .header h1 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .card {
+            background: var(--surface);
+            padding: 32px 24px;
+            border-radius: 16px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h2 {
+            font-size: 22px;
+            margin-bottom: 8px;
+            color: var(--text-main);
+        }
+
+        .desc {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+
+        .loading-overlay {
+            display: none;
+            margin: 20px 0;
+        }
+
+        .spinner {
+            width: 30px;
+            height: 30px;
+            border: 3px solid #eee;
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .search-container {
+            position: relative;
+            text-align: left;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+        }
+
+        .suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            margin-top: 8px;
+            max-height: 250px;
+            overflow-y: auto;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            display: none;
+            z-index: 100;
+        }
+
+        .suggestion-item {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .suggestion-item:last-child {
+            border-bottom: none;
+        }
+
+        .suggestion-item:hover {
+            background: #F9FAFB;
+        }
+
+        .confirm-box {
+            display: none;
+            margin-top: 24px;
+            padding: 24px;
+            background: #F9FAFB;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(10px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border-radius: 10px;
+            border: none;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 16px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:active {
+            transform: scale(0.98);
+        }
+
+        .btn-outline {
+            background: white;
+            border: 1px solid var(--border);
+            color: var(--text-main);
+        }
+
+        .success-screen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            animation: scaleIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes scaleIn {
+            from {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .mini-map {
+            margin-top: 8px;
+            padding: 16px;
+            background: #fff;
+            border-radius: 12px;
+            border: 1px dotted #ccc;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
+        }
+
+        .mini-stage {
+            width: 100px;
+            text-align: center;
+            background: #e0e7ff;
+            color: #4338ca;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 4px;
+            border-radius: 4px;
+            border: 1px solid #a5b4fc;
+        }
+
+        .mini-blocks {
+            display: flex;
+            gap: 20px;
+        }
+
+        .mini-block {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            align-items: center;
+        }
+
+        .mini-block-title {
+            font-size: 9px;
+            color: var(--text-muted);
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .mini-row {
+            display: flex;
+            gap: 2px;
+        }
+
+        .mini-seat {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+            background: #e5e7eb;
+            border: 1px solid #d1d5db;
+        }
+
+        .mini-seat.highlight {
+            background: var(--primary);
+            border-color: var(--primary);
+            transform: scale(1.6);
+            animation: pulse 1.5s infinite;
+            z-index: 5;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.7);
+            }
+
+            70% {
+                box-shadow: 0 0 0 8px rgba(79, 70, 229, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(79, 70, 229, 0);
+            }
+        }
+
+        .seat-badge {
+            background: #EEF2FF;
+            color: var(--primary);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 700;
+            margin-top: 8px;
+            border: 1px solid #C7D2FE;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="header">
+        <h1>Hệ Thống Điểm Danh</h1>
+    </header>
+
+    <main class="content">
+        <!-- Step 1: Search -->
+        <div class="card" id="step-search">
+            <h2>Chào mừng bạn!</h2>
+            <p class="desc">Vui lòng nhập họ tên để nhận chỗ ngồi</p>
+
+            <div class="search-container">
+                <input type="text" id="name-search" placeholder="Ví dụ: Nguyễn Văn A..." oninput="handleSearch()">
+                <div class="suggestions" id="suggestions"></div>
+            </div>
+
+            <div class="loading-overlay" id="loading">
+                <div class="spinner"></div>
+                <p style="font-size: 12px; margin-top: 10px; color: var(--text-muted);">Đang tải dữ liệu...</p>
+            </div>
+
+            <div class="confirm-box" id="confirm-box">
+                <h3 id="conf-name" style="font-size: 18px;"></h3>
+                <p id="conf-unit" style="color: var(--text-muted); font-size: 14px; margin-bottom: 16px;"></p>
+                <input type="hidden" id="conf-uid">
+                <button class="btn btn-primary" onclick="submitCheckin()" id="btn-submit">Xác Nhận Có Mặt</button>
+            </div>
+        </div>
+
+        <!-- Step 2: Success -->
+        <div class="card success-screen" id="step-success">
+            <div style="font-size: 48px;">🎉</div>
+            <h2 style="color: #10B981;">Điểm danh thành công!</h2>
+            <p>Chào mừng <strong id="res-name"></strong>,</p>
+            <p>Mời bạn vào vị trí ngồi:</p>
+
+            <div class="seat-badge" id="res-seat-text"></div>
+
+            <div class="mini-map">
+                <div class="mini-stage">SÂN KHẤU</div>
+                <div class="mini-blocks" id="mini-blocks"></div>
+            </div>
+
+            <button class="btn btn-outline" onclick="location.reload()">Khách tiếp theo</button>
+        </div>
+    </main>
+
+    <script>
+        // CẤU HÌNH: Dán Link Web App từ Google Apps Script vào đây
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby6TCVEGJ9XEJSyVCD7us3d4-b8Py6DW3k5H7ASyCf6q2fmNNONnOl_a2oMZ6D8XBmREw/exec';
+
+        let seatsData = [];
+        const BLOCKS = [{ id: 'left', name: 'Trái' }, { id: 'right', name: 'Phải' }];
+        const ROWS = 10;
+        const COLS = 3;
+
+        async function init() {
+            if (SCRIPT_URL === 'VUI_LONG_DAN_LINK_WEB_APP_VAO_DAY') {
+                alert('Vui lòng thiết lập SCRIPT_URL trong mã nguồn trang web!');
+                return;
+            }
+
+            document.getElementById('loading').style.display = 'block';
+            try {
+                const response = await fetch(SCRIPT_URL);
+                const result = await response.json();
+                if (result.status === 'success') {
+                    // map lại data cho chuẩn key (Google Sheet trả về capitalize keys)
+                    seatsData = result.data.map(item => ({
+                        uid: item['UID'],
+                        name: item['Họ và tên'],
+                        unit: item['Đơn vị'],
+                        block: item['Dãy'],
+                        col: parseInt(item['Cột']),
+                        row: parseInt(item['Hàng']),
+                        isVip: item['VIP'] === 'Có'
+                    }));
+                }
+            } catch (e) {
+                console.error('Error fetching data:', e);
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+
+        function handleSearch() {
+            const val = document.getElementById('name-search').value.toLowerCase().trim();
+            const suggEl = document.getElementById('suggestions');
+            const confirmBox = document.getElementById('confirm-box');
+
+            confirmBox.style.display = 'none';
+            if (val.length < 2) {
+                suggEl.style.display = 'none';
+                return;
+            }
+
+            const matches = seatsData.filter(s =>
+                s.name && (s.name.toLowerCase().includes(val) || (s.unit && s.unit.toLowerCase().includes(val)))
+            ).slice(0, 5); // top 5
+
+            if (matches.length > 0) {
+                suggEl.innerHTML = '';
+                matches.forEach(m => {
+                    const div = document.createElement('div');
+                    div.className = 'suggestion-item';
+                    div.innerHTML = `<strong>${m.name}</strong><small style="color:var(--text-muted)">${m.unit || ''}</small>`;
+                    div.onclick = () => selectGuest(m);
+                    suggEl.appendChild(div);
+                });
+                suggEl.style.display = 'block';
+            } else {
+                suggEl.innerHTML = '<div style="padding:14px; color:var(--text-muted)">Không tìm thấy trong danh sách</div>';
+                suggEl.style.display = 'block';
+            }
+        }
+
+        function selectGuest(guest) {
+            document.getElementById('name-search').value = guest.name;
+            document.getElementById('suggestions').style.display = 'none';
+
+            document.getElementById('conf-name').innerText = guest.name;
+            document.getElementById('conf-unit').innerText = guest.unit || 'Khách mời';
+            document.getElementById('conf-uid').value = guest.uid;
+            document.getElementById('confirm-box').style.display = 'block';
+        }
+
+        async function submitCheckin() {
+            const uid = document.getElementById('conf-uid').value;
+            const btn = document.getElementById('btn-submit');
+            const guest = seatsData.find(s => s.uid === uid);
+
+            btn.disabled = true;
+            btn.innerText = 'Đang xử lý...';
+
+            const time = new Date().toLocaleTimeString('vi-VN');
+
+            try {
+                // Gửi về Google Sheets
+                await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors', // Apps Script POST often needs no-cors
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'checkin', uid, time })
+                });
+
+                // Chuyển màn hình thành công (giả định là OK vì no-cors ko đọc được body)
+                document.getElementById('step-search').style.display = 'none';
+                document.getElementById('res-name').innerText = guest.name;
+                document.getElementById('res-seat-text').innerText = `Dãy ${guest.block} - Cột ${guest.col} - Hàng ${guest.row}`;
+
+                renderMiniMap(guest);
+                document.getElementById('step-success').style.display = 'flex';
+
+            } catch (e) {
+                alert('Có lỗi xảy ra, vui lòng thử lại!');
+                btn.disabled = false;
+                btn.innerText = 'Xác Nhận Có Mặt';
+            }
+        }
+
+        function renderMiniMap(tg) {
+            const container = document.getElementById('mini-blocks');
+            container.innerHTML = '';
+
+            BLOCKS.forEach(b => {
+                const bDiv = document.createElement('div');
+                bDiv.className = 'mini-block';
+                bDiv.innerHTML = `<div class="mini-block-title">Dãy ${b.name}</div>`;
+
+                for (let r = 1; r <= ROWS; r++) {
+                    const rowDiv = document.createElement('div');
+                    rowDiv.className = 'mini-row';
+                    for (let c = 1; c <= COLS; c++) {
+                        const s = document.createElement('div');
+                        s.className = 'mini-seat';
+                        if (tg.block === b.name && tg.row === r && tg.col === c) s.className += ' highlight';
+                        rowDiv.appendChild(s);
+                    }
+                    bDiv.appendChild(rowDiv);
+                }
+                container.appendChild(bDiv);
+            });
+        }
+
+        window.onload = init;
+    </script>
+</body>
+
+</html>
